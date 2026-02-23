@@ -1,76 +1,16 @@
 import { Flex, Box, Heading, Text, Input, Button } from "@chakra-ui/react";
 import { Session } from "@supabase/supabase-js";
-import { useState, useEffect } from "react";
 import { supabase } from "../../lib/supabase";
+import { useGetChannels } from "../../hooks/useGetChannels";
+import { useGetMessages } from "../../hooks/useGetMessages";
 
 interface Props {
   session: Session;
 }
-interface Message {
-  id: string;
-  content: string;
-  user_id: string;
-  created_at: string;
-}
-interface Channel {
-  id: string;
-  name: string;
-}
 
 export const Chat = ({ session }: Props) => {
-  const [channels, setChannels] = useState<Channel[]>([]);
-  const [activeChannel, setActiveChannel] = useState<Channel | null>(null);
-
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [newMessage, setNewMessage] = useState("");
-
-  useEffect(() => {
-    const getChannels = async () => {
-      const { data, error } = await supabase.from("channels").select("*");
-      if (error) console.error(error);
-      if (data) {
-        setChannels(data);
-        setActiveChannel(data[0]);
-      }
-    };
-    getChannels();
-  }, []);
-
-  useEffect(() => {
-    if (!activeChannel) return;
-
-    const getMessages = async () => {
-      const { data, error } = await supabase
-        .from("messages")
-        .select("*")
-        .eq("channel_id", activeChannel.id)
-        .order("created_at", { ascending: true });
-
-      if (error) console.error(error);
-      if (data) setMessages(data);
-    };
-
-    getMessages();
-    const subscription = supabase
-      .channel(`messages:${activeChannel.id}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "messages",
-          filter: `channel_id=eq.${activeChannel.id}`,
-        },
-        (payload) => {
-          setMessages((prev) => [...prev, payload.new as Message]);
-        },
-      )
-      .subscribe();
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [activeChannel]);
+  const { channels, activeChannel, setActiveChannel } = useGetChannels();
+  const { messages, setNewMessage, newMessage } = useGetMessages(activeChannel);
 
   const sendMessage = async () => {
     if (!newMessage.trim() || !activeChannel) return;
