@@ -3,6 +3,11 @@ import { Session } from "@supabase/supabase-js";
 import { supabase } from "../../lib/supabase";
 import { useGetChannels } from "../../hooks/useGetChannels";
 import { useGetMessages } from "../../hooks/useGetMessages";
+import { Plus, Trash } from "lucide-react";
+import { useState } from "react";
+import { AddChannelModal } from "../AddChannelModal/AddChannelModal";
+import { useRemoveMessages } from "../../hooks/useRemoveMessages";
+import { useAddChannels } from "../../hooks/useAddChannels";
 
 interface Props {
   session: Session;
@@ -11,6 +16,10 @@ interface Props {
 export const Chat = ({ session }: Props) => {
   const { channels, activeChannel, setActiveChannel } = useGetChannels();
   const { messages, setNewMessage, newMessage } = useGetMessages(activeChannel);
+  const { removeMessage } = useRemoveMessages(session);
+  const { handleAddChannel } = useAddChannels();
+
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
   const sendMessage = async () => {
     if (!newMessage.trim() || !activeChannel) return;
@@ -24,6 +33,7 @@ export const Chat = ({ session }: Props) => {
     if (error) console.error(error);
     setNewMessage("");
   };
+
   return (
     <Flex height="100vh">
       <Box
@@ -43,9 +53,23 @@ export const Chat = ({ session }: Props) => {
           </Box>
 
           <Box p={2}>
-            <Text fontSize="sm" color="whiteAlpha.700" px={2} py={2}>
-              Kanallar
-            </Text>
+            <Flex display={"flex"} justifyContent={"space-between"}>
+              <Text fontSize="lg" color="whiteAlpha.700" px={2} py={2}>
+                Kanallar
+              </Text>
+              <Plus
+                style={{ marginTop: "10px" }}
+                cursor={"pointer"}
+                onClick={() => setIsAddModalOpen(true)}
+              />
+            </Flex>
+
+            <AddChannelModal
+              isOpen={isAddModalOpen}
+              onClose={() => setIsAddModalOpen(false)}
+              onAdd={handleAddChannel}
+            />
+
             {channels.map((channel) => (
               <Text
                 key={channel.id}
@@ -104,7 +128,32 @@ export const Chat = ({ session }: Props) => {
               <Text fontSize="sm" fontWeight="bold" color="#1d1c1d">
                 {session?.user?.email}
               </Text>
-              <Text color="#1d1c1d">{msg.content}</Text>
+              <Flex
+                className="group"
+                justifyContent="space-between"
+                alignItems="center"
+                px={2}
+                py={1}
+                _hover={{ bg: "#F5F5F5" }}
+              >
+                <Text
+                  color="#1d1c1d"
+                  _groupHover={{
+                    bg: "#DCDCDC",
+                  }}
+                >
+                  {msg.content}
+                </Text>
+
+                <Box
+                  opacity={0}
+                  _groupHover={{ opacity: 10 }}
+                  transition="0.2s"
+                  cursor="pointer"
+                >
+                  <Trash onClick={() => removeMessage(msg.id)} />
+                </Box>
+              </Flex>
             </Box>
           ))}
         </Box>
