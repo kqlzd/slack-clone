@@ -35,6 +35,19 @@ export const useGetMessages = (activeChannel: Channel | null) => {
           setMessages((prev) => [...prev, payload.new as Message]);
         },
       )
+      .on(
+        "postgres_changes",
+        {
+          event: "DELETE",
+          schema: "public",
+          table: "messages",
+        },
+        (payload) => {
+          setMessages((prev) =>
+            prev.filter((msg) => msg.id !== payload.old.id),
+          );
+        },
+      )
       .subscribe();
 
     return () => {
