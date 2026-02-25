@@ -16,14 +16,13 @@ interface Props {
 }
 
 export const Chat = ({ session }: Props) => {
-  console.log("🚀 ~ Chat ~ session:", session);
   const { channels, activeChannel, setActiveChannel } = useGetChannels();
   const { messages, setNewMessage, newMessage } = useGetMessages(activeChannel);
   const { removeMessage } = useRemoveMessages(session);
   const { handleAddChannel } = useAddChannels();
   const { removeChannel } = useRemoveChannel();
 
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isAddModalOpen, setIsAddModalOpen] = useState<boolean>(false);
 
   const email = session?.user?.email;
 
