@@ -1,8 +1,8 @@
 import { Session } from "@supabase/auth-js";
 import { useEffect, useState } from "react";
 import { supabase } from "./lib/supabase";
-import { Chat } from "./components/Chat/Chat";
-import { Auth } from "./components/Auth/Auth";
+import { Auth } from "./pages/Auth/Auth";
+import { Chat } from "./pages/Chat/Chat";
 
 function App() {
   const [session, setSession] = useState<Session | null>(null);

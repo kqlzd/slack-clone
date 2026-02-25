@@ -3,11 +3,12 @@ import { Session } from "@supabase/supabase-js";
 import { supabase } from "../../lib/supabase";
 import { useGetChannels } from "../../hooks/useGetChannels";
 import { useGetMessages } from "../../hooks/useGetMessages";
-import { Plus, Trash } from "lucide-react";
+import { Plus, Trash, TrashIcon } from "lucide-react";
 import { useState } from "react";
-import { AddChannelModal } from "../AddChannelModal/AddChannelModal";
 import { useRemoveMessages } from "../../hooks/useRemoveMessages";
 import { useAddChannels } from "../../hooks/useAddChannels";
+import { useRemoveChannel } from "../../hooks/useRemoveChannel";
+import { AddChannelModal } from "../../components/AddChannelModal/AddChannelModal";
 
 interface Props {
   session: Session;
@@ -18,6 +19,7 @@ export const Chat = ({ session }: Props) => {
   const { messages, setNewMessage, newMessage } = useGetMessages(activeChannel);
   const { removeMessage } = useRemoveMessages(session);
   const { handleAddChannel } = useAddChannels();
+  const { removeChannel } = useRemoveChannel();
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
@@ -48,7 +50,7 @@ export const Chat = ({ session }: Props) => {
         <Box>
           <Box p={4} borderBottom="1px solid #522653">
             <Heading size="md" fontWeight="bold">
-              Slack Clone
+              Slack
             </Heading>
           </Box>
 
@@ -58,7 +60,11 @@ export const Chat = ({ session }: Props) => {
                 Kanallar
               </Text>
               <Plus
-                style={{ marginTop: "10px" }}
+                style={{
+                  marginTop: "10px",
+                  width: "1.3em",
+                  height: "1.3em",
+                }}
                 cursor={"pointer"}
                 onClick={() => setIsAddModalOpen(true)}
               />
@@ -71,23 +77,34 @@ export const Chat = ({ session }: Props) => {
             />
 
             {channels.map((channel) => (
-              <Text
-                key={channel.id}
-                px={3}
-                py={1.5}
-                borderRadius="md"
-                bg={
-                  activeChannel?.id === channel.id ? "#1164A3" : "transparent"
-                }
-                _hover={{
-                  bg: activeChannel?.id === channel.id ? "#1164A3" : "#350D36",
-                }}
-                cursor="pointer"
-                fontSize="15px"
-                onClick={() => setActiveChannel(channel)}
-              >
-                # {channel.name}
-              </Text>
+              <Flex justifyContent={"space-between"}>
+                <Text
+                  key={channel.id}
+                  px={3}
+                  py={1.5}
+                  borderRadius="md"
+                  bg={
+                    activeChannel?.id === channel.id ? "#1164A3" : "transparent"
+                  }
+                  _hover={{
+                    bg:
+                      activeChannel?.id === channel.id ? "#1164A3" : "#350D36",
+                  }}
+                  cursor="pointer"
+                  fontSize="15px"
+                  onClick={() => setActiveChannel(channel)}
+                >
+                  # {channel.name}
+                </Text>
+
+                <TrashIcon
+                  fontSize={"sm"}
+                  width="1em"
+                  height="1em"
+                  cursor={"pointer"}
+                  onClick={() => removeChannel(channel.id)}
+                />
+              </Flex>
             ))}
           </Box>
         </Box>
@@ -118,13 +135,7 @@ export const Chat = ({ session }: Props) => {
 
         <Box flex={1} p={4} overflowY="auto" bg="#f8f8f8">
           {messages.map((msg) => (
-            <Box
-              key={msg.id}
-              mb={4}
-              p={2}
-              _hover={{ bg: "#f0f0f0" }}
-              borderRadius="md"
-            >
+            <Box key={msg.id} mb={4} p={2} borderRadius="md">
               <Text fontSize="sm" fontWeight="bold" color="#1d1c1d">
                 {session?.user?.email}
               </Text>
@@ -134,7 +145,6 @@ export const Chat = ({ session }: Props) => {
                 alignItems="center"
                 px={2}
                 py={1}
-                _hover={{ bg: "#F5F5F5" }}
               >
                 <Text
                   color="#1d1c1d"
@@ -150,8 +160,12 @@ export const Chat = ({ session }: Props) => {
                   _groupHover={{ opacity: 10 }}
                   transition="0.2s"
                   cursor="pointer"
+                  color={"red"}
                 >
-                  <Trash onClick={() => removeMessage(msg.id)} />
+                  <Trash
+                    onClick={() => removeMessage(msg.id)}
+                    style={{ width: "1.2em", height: "1.2em" }}
+                  />
                 </Box>
               </Flex>
             </Box>
