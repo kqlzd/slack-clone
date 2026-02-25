@@ -9,12 +9,14 @@ import { useRemoveMessages } from "../../hooks/useRemoveMessages";
 import { useAddChannels } from "../../hooks/useAddChannels";
 import { useRemoveChannel } from "../../hooks/useRemoveChannel";
 import { AddChannelModal } from "../../components/AddChannelModal/AddChannelModal";
+import { AvatarComponent } from "../../components/AvatarComponent/AvatarComponent";
 
 interface Props {
   session: Session;
 }
 
 export const Chat = ({ session }: Props) => {
+  console.log("🚀 ~ Chat ~ session:", session);
   const { channels, activeChannel, setActiveChannel } = useGetChannels();
   const { messages, setNewMessage, newMessage } = useGetMessages(activeChannel);
   const { removeMessage } = useRemoveMessages(session);
@@ -22,6 +24,8 @@ export const Chat = ({ session }: Props) => {
   const { removeChannel } = useRemoveChannel();
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+
+  const email = session?.user?.email;
 
   const sendMessage = async () => {
     if (!newMessage.trim() || !activeChannel) return;
@@ -128,9 +132,13 @@ export const Chat = ({ session }: Props) => {
 
       <Flex flex={1} flexDirection="column" bg="white">
         <Box p={4} borderBottom="1px solid #e0e0e0" bg="white">
-          <Heading size="md" fontWeight="bold" color="#1d1c1d">
-            # {activeChannel?.name}
-          </Heading>
+          <Flex justifyContent={"space-between"}>
+            <Heading size="md" fontWeight="bold" color="#1d1c1d">
+              # {activeChannel?.name}
+            </Heading>
+
+            <AvatarComponent email={email} />
+          </Flex>
         </Box>
 
         <Box flex={1} p={4} overflowY="auto" bg="#f8f8f8">
