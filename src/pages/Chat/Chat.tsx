@@ -5,10 +5,10 @@ import { useGetChannels } from "../../hooks/useGetChannels";
 import { useGetMessages } from "../../hooks/useGetMessages";
 import { Plus, Trash, TrashIcon } from "lucide-react";
 import { useState } from "react";
-import { AddChannelModal } from "../AddChannelModal/AddChannelModal";
 import { useRemoveMessages } from "../../hooks/useRemoveMessages";
 import { useAddChannels } from "../../hooks/useAddChannels";
 import { useRemoveChannel } from "../../hooks/useRemoveChannel";
+import { AddChannelModal } from "../../components/AddChannelModal/AddChannelModal";
 
 interface Props {
   session: Session;
