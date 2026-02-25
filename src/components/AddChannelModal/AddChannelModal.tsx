@@ -7,7 +7,6 @@ import {
   Text,
   Box,
 } from "@chakra-ui/react";
-import { UserPlus } from "lucide-react";
 import { useState } from "react";
 
 interface AddUserModalProps {
@@ -36,20 +35,20 @@ export const AddChannelModal = ({
         <Dialog.Content borderRadius="xl" maxW="md">
           <Dialog.Header borderBottom="1px" borderColor="gray.100" pb={4}>
             <HStack gap={2}>
-              <UserPlus size={24} color="var(--chakra-colors-blue-600)" />
-              <Dialog.Title fontSize="xl" fontWeight="bold">
+              <Dialog.Title fontSize="xl" fontWeight="bold" color={"black"}>
                 Add New Channel
               </Dialog.Title>
             </HStack>
           </Dialog.Header>
 
-          <Dialog.Body pt={6} pb={4}>
+          <Dialog.Body pb={4}>
             <VStack gap={4} align="stretch">
               <Box>
                 <Text mb={2} fontWeight="medium" fontSize="sm" color="gray.700">
                   Channel Name
                 </Text>
                 <Input
+                  color={"black"}
                   placeholder="Enter full name"
                   value={channelName}
                   onChange={(e) => setChannelName(e.target.value)}

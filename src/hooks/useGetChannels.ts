@@ -16,6 +16,28 @@ export const useGetChannels = () => {
       }
     };
     getChannels();
+
+    const subscription = supabase
+      .channel("channels")
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "channels" },
+        (payload) => {
+          setChannels((prev) => [...prev, payload.new as Channel]);
+        },
+      )
+      .on(
+        "postgres_changes",
+        { event: "DELETE", schema: "public", table: "channels" },
+        (payload) => {
+          setChannels((prev) => prev.filter((ch) => ch.id !== payload.old.id));
+        },
+      )
+      .subscribe();
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   return { channels, activeChannel, setActiveChannel };
