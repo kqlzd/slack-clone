@@ -17,3 +17,8 @@ export interface IProfile {
   id: string;
   username: string | null;
 }
+
+export interface User {
+  id: string;
+  username: string | null;
+}

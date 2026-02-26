@@ -21,7 +21,7 @@ export const Chat = ({ session }: Props) => {
   const { channels, activeChannel, setActiveChannel } = useGetChannels();
   const { messages, setNewMessage, newMessage } = useGetMessages(activeChannel);
   const { removeMessage } = useRemoveMessages(session);
-  const { profile } = useProfile(session);
+  const { profile, users } = useProfile(session);
   const { handleAddChannel } = useAddChannels();
   const { removeChannel } = useRemoveChannel();
 
@@ -125,6 +125,18 @@ export const Chat = ({ session }: Props) => {
           </Box>
         </Box>
 
+        <Box p={2} mt={4}>
+          <Text fontSize="md" color="whiteAlpha.700" px={2} py={2}>
+            Direct Messages
+          </Text>
+          {users.map((user) => (
+            <Flex key={user.id} alignItems="center" gap={2} px={3} py={1.5}>
+              <AvatarComponent email={user.username ?? ""} />
+              <Text fontSize="15px">{user.username}</Text>
+            </Flex>
+          ))}
+        </Box>
+
         <Box p={3} borderTop="1px solid #522653">
           <Text fontSize="sm" mb={2} color="whiteAlpha.800">
             {profile?.username}
@@ -171,13 +183,16 @@ export const Chat = ({ session }: Props) => {
                 >
                   <Flex alignItems="center" gap={2} mb={1}>
                     <AvatarComponent email={msg.profiles?.username ?? ""} />
+
                     <Text fontSize="sm" fontWeight="bold" color="#1d1c1d">
                       {msg.profiles?.username ?? "İsimsiz"}
                     </Text>
+
                     <Text fontSize="xs" color="gray.500">
                       {dayjs(msg.created_at).format("HH:mm")}
                     </Text>
                   </Flex>
+
                   <Flex
                     className="group"
                     justifyContent="space-between"
@@ -186,6 +201,7 @@ export const Chat = ({ session }: Props) => {
                     py={1}
                   >
                     <Text color="#1d1c1d">{msg.content}</Text>
+
                     <Box
                       opacity={0}
                       _groupHover={{ opacity: 10 }}

@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import { supabase } from "../lib/supabase";
 import { Session } from "@supabase/supabase-js";
-import { IProfile } from "../models/api";
+import { IProfile, User } from "../models/api";
 
 export const useProfile = (session: Session) => {
   const [profile, setProfile] = useState<IProfile | null>(null);
+  const [users, setUsers] = useState<User[]>([]);
 
   useEffect(() => {
     const getProfile = async () => {
@@ -21,5 +22,16 @@ export const useProfile = (session: Session) => {
     getProfile();
   }, [session]);
 
-  return { profile };
+  useEffect(() => {
+    const getUsers = async () => {
+      const { data, error } = await supabase.from("profiles").select("*");
+
+      if (error) console.error(error);
+      if (data) setUsers(data);
+    };
+
+    getUsers();
+  }, []);
+
+  return { profile, users };
 };
