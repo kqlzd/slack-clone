@@ -10,7 +10,9 @@ import { useAddChannels } from "../../hooks/useAddChannels";
 import { useRemoveChannel } from "../../hooks/useRemoveChannel";
 import { AddChannelModal } from "../../components/AddChannelModal/AddChannelModal";
 import { AvatarComponent } from "../../components/AvatarComponent/AvatarComponent";
-
+import { useProfile } from "../../hooks/useProfile";
+import { useRef, useEffect } from "react";
+import dayjs from "dayjs";
 interface Props {
   session: Session;
 }
@@ -19,12 +21,23 @@ export const Chat = ({ session }: Props) => {
   const { channels, activeChannel, setActiveChannel } = useGetChannels();
   const { messages, setNewMessage, newMessage } = useGetMessages(activeChannel);
   const { removeMessage } = useRemoveMessages(session);
+  const { profile } = useProfile(session);
   const { handleAddChannel } = useAddChannels();
   const { removeChannel } = useRemoveChannel();
 
   const [isAddModalOpen, setIsAddModalOpen] = useState<boolean>(false);
 
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
   const email = session?.user?.email;
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
 
   const sendMessage = async () => {
     if (!newMessage.trim() || !activeChannel) return;
@@ -114,7 +127,7 @@ export const Chat = ({ session }: Props) => {
 
         <Box p={3} borderTop="1px solid #522653">
           <Text fontSize="sm" mb={2} color="whiteAlpha.800">
-            {session.user.email}
+            {profile?.username}
           </Text>
           <Button
             size="sm"
@@ -141,42 +154,57 @@ export const Chat = ({ session }: Props) => {
         </Box>
 
         <Box flex={1} p={4} overflowY="auto" bg="#f8f8f8">
-          {messages.map((msg) => (
-            <Box key={msg.id} mb={4} p={2} borderRadius="md">
-              <Text fontSize="sm" fontWeight="bold" color="#1d1c1d">
-                {session?.user?.email}
-              </Text>
+          {messages.map((msg) => {
+            const isOwnMessage = msg.user_id === session.user.id;
+            return (
               <Flex
-                className="group"
-                justifyContent="space-between"
-                alignItems="center"
-                px={2}
-                py={1}
+                key={msg.id}
+                mb={4}
+                justifyContent={isOwnMessage ? "flex-start" : "flex-end"}
               >
-                <Text
-                  color="#1d1c1d"
-                  _groupHover={{
-                    bg: "#DCDCDC",
-                  }}
-                >
-                  {msg.content}
-                </Text>
-
                 <Box
-                  opacity={0}
-                  _groupHover={{ opacity: 10 }}
-                  transition="0.2s"
-                  cursor="pointer"
-                  color={"red"}
+                  p={2}
+                  borderRadius="md"
+                  bg={isOwnMessage ? "white" : "#dcf8c6"}
+                  maxW="70%"
+                  boxShadow="sm"
                 >
-                  <Trash
-                    onClick={() => removeMessage(msg.id)}
-                    style={{ width: "1.2em", height: "1.2em" }}
-                  />
+                  <Flex alignItems="center" gap={2} mb={1}>
+                    <AvatarComponent email={msg.profiles?.username ?? ""} />
+                    <Text fontSize="sm" fontWeight="bold" color="#1d1c1d">
+                      {msg.profiles?.username ?? "İsimsiz"}
+                    </Text>
+                    <Text fontSize="xs" color="gray.500">
+                      {dayjs(msg.created_at).format("HH:mm")}
+                    </Text>
+                  </Flex>
+                  <Flex
+                    className="group"
+                    justifyContent="space-between"
+                    alignItems="center"
+                    px={2}
+                    py={1}
+                  >
+                    <Text color="#1d1c1d">{msg.content}</Text>
+                    <Box
+                      opacity={0}
+                      _groupHover={{ opacity: 10 }}
+                      transition="0.2s"
+                      cursor="pointer"
+                      color="red"
+                      ml={2}
+                    >
+                      <Trash
+                        onClick={() => removeMessage(msg.id)}
+                        style={{ width: "1.2em", height: "1.2em" }}
+                      />
+                    </Box>
+                  </Flex>
                 </Box>
               </Flex>
-            </Box>
-          ))}
+            );
+          })}
+          <div ref={messagesEndRef} />
         </Box>
 
         <Box p={4} borderTop="1px solid #e0e0e0" bg="white">

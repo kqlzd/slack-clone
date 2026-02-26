@@ -1,13 +1,21 @@
 import { Button, Box, Input, Text } from "@chakra-ui/react";
-import { useState } from "react";
+
 import { supabase } from "../../lib/supabase";
+import { useAuthStates } from "../../hooks/useAuthStates";
 
 export const Auth = () => {
-  const [email, setEmail] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
-  const [error, setError] = useState<string>("");
-  const [isLogin, setIsLogin] = useState<boolean>(true);
-  const [loading, setLoading] = useState<boolean>(false);
+  const {
+    email,
+    password,
+    error,
+    isLogin,
+    loading,
+    setEmail,
+    setPassword,
+    setError,
+    setIsLogin,
+    setLoading,
+  } = useAuthStates();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
