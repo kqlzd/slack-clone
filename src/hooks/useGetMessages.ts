@@ -12,7 +12,7 @@ export const useGetMessages = (activeChannel: Channel | null) => {
     const getMessages = async () => {
       const { data, error } = await supabase
         .from("messages")
-        .select("*")
+        .select("*, profiles(username)")
         .eq("channel_id", activeChannel.id)
         .order("created_at", { ascending: true });
 
@@ -31,8 +31,20 @@ export const useGetMessages = (activeChannel: Channel | null) => {
           table: "messages",
           filter: `channel_id=eq.${activeChannel.id}`,
         },
-        (payload) => {
-          setMessages((prev) => [...prev, payload.new as Message]);
+        async (payload) => {
+          const newMsg = payload.new as Message;
+          // Fetch profile data for the new message
+          const { data: profileData } = await supabase
+            .from("profiles")
+            .select("username")
+            .eq("id", newMsg.user_id)
+            .single();
+
+          const messageWithProfile: Message = {
+            ...newMsg,
+            profiles: profileData,
+          };
+          setMessages((prev) => [...prev, messageWithProfile]);
         },
       )
       .on(
