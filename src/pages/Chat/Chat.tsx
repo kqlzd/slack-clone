@@ -26,6 +26,7 @@ export const Chat = ({ session }: Props) => {
   const { removeChannel } = useRemoveChannel();
 
   const [isAddModalOpen, setIsAddModalOpen] = useState<boolean>(false);
+  const [searchMessage, setSearchMessage] = useState<string>("");
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -161,6 +162,14 @@ export const Chat = ({ session }: Props) => {
               # {activeChannel?.name}
             </Heading>
 
+            <Input
+              value={searchMessage}
+              type="text"
+              width="50%"
+              placeholder="Search..."
+              onChange={(e) => setSearchMessage(e.target.value)}
+            />
+
             <AvatarComponent email={email} />
           </Flex>
         </Box>
@@ -200,7 +209,27 @@ export const Chat = ({ session }: Props) => {
                     px={2}
                     py={1}
                   >
-                    <Text color="#1d1c1d">{msg.content}</Text>
+                    <Text color="#1d1c1d">
+                      {searchMessage.trim()
+                        ? msg.content
+                            .split(new RegExp(`(${searchMessage})`, "gi"))
+                            .map((part, i) =>
+                              part.toLowerCase() ===
+                              searchMessage.toLowerCase() ? (
+                                <Text
+                                  as="span"
+                                  key={i}
+                                  color="green"
+                                  fontWeight="bold"
+                                >
+                                  {part}
+                                </Text>
+                              ) : (
+                                part
+                              ),
+                            )
+                        : msg.content}
+                    </Text>
 
                     <Box
                       opacity={0}

@@ -32,7 +32,12 @@ export const Auth = () => {
 
   return (
     <>
-      <Box as="form" onSubmit={handleSubmit} width="50%">
+      <Box
+        as="form"
+        onSubmit={handleSubmit}
+        alignContent={"center"}
+        width="50%"
+      >
         <Input
           type="email"
           placeholder="Email"
@@ -40,6 +45,7 @@ export const Auth = () => {
           onChange={(e) => setEmail(e.target.value)}
           mb={4}
         />
+
         <Input
           type="password"
           placeholder="Şifrə"
